@@ -9,8 +9,8 @@ function relative() {
     # Try to use readlink as a fallback to readpath for cross-platform compat.
     if command -v realpath >/dev/null 2>&1; then
       echo $(realpath "${full_path}")
-    elif ! (readlink -n 2>&1 | grep illegal > /dev/null); then
-      echo $(readlink -n "${full_path}")
+    elif ! (readlink -f 2>&1 | grep illegal > /dev/null); then
+      echo $(readlink -f "${full_path}")
     else
       echo "kitty-registrar's scripts require 'realpath' or 'readlink -f' support." >&2
       echo "Install realpath or GNU readlink via your package manager." >&2
