@@ -1,15 +1,11 @@
-#![feature(plugin, decl_macro)]
+#![feature(plugin)]
 #![plugin(rocket_codegen)]
 
 extern crate rocket_contrib;
 extern crate rocket;
-extern crate serde_json;
 #[macro_use] extern crate serde_derive;
 
-// Until ring is fixed, no unit tests
-//#[cfg(test)] mod tests;
-
-use std::collections::HashMap;
+#[cfg(test)] mod tests;
 
 use rocket::Request;
 use rocket::response::Redirect;
@@ -18,7 +14,7 @@ use rocket_contrib::Template;
 #[derive(Serialize)]
 struct TemplateContext {
     name: String,
-    items: Vec<&'static str>
+    items: Vec<String>
 }
 
 #[get("/")]
@@ -28,13 +24,17 @@ fn index() -> Redirect {
 
 #[get("/hello/<name>")]
 fn get(name: String) -> Template {
-    let context = TemplateContext { name, items: vec!["One", "Two", "Three"] };
+    let context = TemplateContext {
+        name: name,
+        items: vec!["One", "Two", "Three"].iter().map(|s| s.to_string()).collect()
+    };
+
     Template::render("index", &context)
 }
 
 #[error(404)]
 fn not_found(req: &Request) -> Template {
-    let mut map = HashMap::new();
+    let mut map = std::collections::HashMap::new();
     map.insert("path", req.uri().as_str());
     Template::render("error/404", &map)
 }
